@@ -16,6 +16,7 @@ struct screenData
     int screen_1;
     int screen_2;
     int screen_3;
+    int battery;
 };
 
 struct espdata

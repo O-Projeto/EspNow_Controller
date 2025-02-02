@@ -21,6 +21,10 @@ public:
     void update();
     void drawCheckbox(int x, int y, bool checked);
     void drawCircle(int x, int y);
+    void main_menu(int index);
+    void conect_menu(uint8_t baseMac[6]);
+    void drawBattery(int x, int y, int level);
+    void info_screen(int battery1, int battery2, int x, int y, int z);
 };
 
 screen::screen() : display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1) {}
@@ -57,6 +61,7 @@ void screen::drawCheckbox(int x, int y, bool checked)
 
 void screen::test(const espdata &controler)
 {
+
     // Normalização dos valores de X e Y para o range -15 a 15 e inversão do X
     int xNorm = -map(controler.joy_data.y, -1000, 1000, -15, 15); // Rotação e inversão
     int yNorm = -map(controler.joy_data.x, -1000, 1000, 15, -15); // Rotação
@@ -96,6 +101,110 @@ void screen::test(const espdata &controler)
 
     // Atualizar o display
     update();
+}
+
+void screen::drawBattery(int x, int y, int level)
+{
+    int width = 20, height = 10;
+
+    // Desenha a borda da bateria
+    display.drawRect(x, y, width, height, SSD1306_WHITE);
+    display.fillRect(x + width, y + 3, 2, 4, SSD1306_WHITE); // Terminal da bateria
+
+    // Desenha o nível de carga interno
+    int fillWidth = (level * (width - 2)) / 100; // Escala para a largura da bateria
+    display.fillRect(x + 1, y + 1, fillWidth, height - 2, SSD1306_WHITE);
+}
+
+void screen::info_screen(int battery1, int battery2, int x, int y, int z)
+{
+    display.clearDisplay();
+
+    // Parte superior: Desenhar baterias e seus níveis (%)
+    drawBattery(10, 5, battery1);
+    display.setCursor(35, 7);
+    display.setTextSize(1);
+    display.print(battery1);
+    display.print("%");
+
+    drawBattery(80, 5, battery2);
+    display.setCursor(105, 7);
+    display.print(battery2);
+    display.print("%");
+
+    // Meio da tela: Exibir valores de X, Y, Z
+    display.setCursor(10, 25);
+    display.setTextSize(1);
+    display.print("X: ");
+    display.print(x);
+
+    display.setCursor(10, 40);
+    display.print("Y: ");
+    display.print(y);
+
+    display.setCursor(10, 55);
+    display.print("Z: ");
+    display.print(z);
+
+    // Parte inferior: Status
+    display.setCursor(80, 55);
+    display.setTextSize(1);
+    display.print("Status");
+}
+
+void screen::main_menu(int index_menu)
+{
+    display.clearDisplay();
+    display.setTextColor(SSD1306_WHITE); // Define a cor do texto
+
+    // Exibir os subtópicos
+    display.setTextSize(2);
+    display.setCursor(10, 5);
+    display.print("Menu:");
+
+    display.setTextSize(1);
+    display.setCursor(10, 25);
+
+    if (index_menu == 0)
+    {
+        display.print(">>> Config");
+    }
+    else
+    {
+        display.print("> Config");
+    }
+    display.setCursor(10, 40);
+    if (index_menu == 1)
+    {
+        display.print(">>> Conexao");
+    }
+    else
+    {
+        display.print("> Conexao");
+    }
+
+    display.setCursor(10, 55);
+
+    if (index_menu == 2)
+    {
+        display.print(">>>Test");
+    }
+    else
+    {
+        display.print("> Test");
+    }
+}
+
+void screen::conect_menu(uint8_t baseMac[6])
+{
+    display.clearDisplay();
+    display.setCursor(10, 40);
+    char macStr[18]; // "XX:XX:XX:XX:XX:XX" + null terminator
+    snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X",
+             baseMac[0], baseMac[1], baseMac[2],
+             baseMac[3], baseMac[4], baseMac[5]);
+
+    display.print(macStr);
 }
 
 void screen::update()

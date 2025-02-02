@@ -9,6 +9,8 @@
 #include "espdata.h"
 #include "ControlerConfig.h"
 #include "config.h"
+#include "screen.h"
+#include <esp_wifi.h>
 
 // REPLACE WITH YOUR RECEIVER MAC Address
 uint8_t broadcastAddress[] = {0xa4, 0xcf, 0x12, 0x99, 0xf0, 0x58};
@@ -21,19 +23,23 @@ espdata myData;
 
 esp_now_peer_info_t peerInfo;
 
+screen tela;
+int index_vert = 1;
+int index_horizontal = 1;
+uint8_t baseMac[6];
+
 // callback when data is sent
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
-    Serial.print("\r\nLast Packet Send Status:\t");
-    Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+    // Serial.print("\r\nLast Packet Send Status:\t");
+    // Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 }
 
 void setup()
 {
     // Init Serial Monitor
     Serial.begin(115200);
-
-    ControlerBegin();
+    tela.begin();
 
     // Set device as a Wi-Fi Station
     WiFi.mode(WIFI_STA);
@@ -60,26 +66,72 @@ void setup()
         Serial.println("Failed to add peer");
         return;
     }
+    esp_err_t ret = esp_wifi_get_mac(WIFI_IF_STA, baseMac);
 }
 
 void loop()
 {
-
     getControlerData();
-    // Set values to send
-    debug();
     myData = data2send;
+
+    if (myData.arrow_data.up)
+    {
+        index_vert = index_vert - 1;
+    }
+    if (myData.arrow_data.down)
+    {
+        index_vert = index_vert + 1;
+    }
+    if (myData.arrow_data.left)
+    {
+        index_horizontal = index_horizontal - 1;
+    }
+    if (myData.arrow_data.right)
+    {
+        index_horizontal = index_horizontal + 1;
+    }
+
+    // Set values to send
+    // debug();
 
     // Send message via ESP-NOW
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
 
-    if (result == ESP_OK)
+    Serial.print(index_vert);
+    Serial.print("  ");
+    Serial.println(index_horizontal);
+
+    if (index_horizontal == 1)
+        tela.main_menu(index_vert);
+    if (index_horizontal == 0)
+        tela.test(data2send);
+    if (index_horizontal == 2)
     {
-        Serial.println("Sent with success");
+        tela.conect_menu(baseMac);
     }
-    else
+    if (index_horizontal == 3)
     {
-        Serial.println("Error sending the data");
+        tela.info_screen(25, 75, 32, 42, 66);
     }
+    tela.update();
+
+    if (index_horizontal > 3)
+    {
+        index_horizontal = 0;
+    }
+    if (index_horizontal < 0)
+    {
+        index_horizontal = 3;
+    }
+
+    if (index_vert > 2)
+    {
+        index_vert = 0;
+    }
+    if (index_vert < 0)
+    {
+        index_vert = 2;
+    }
+
     delay(60);
 }

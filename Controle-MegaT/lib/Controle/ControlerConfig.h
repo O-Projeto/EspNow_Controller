@@ -43,10 +43,10 @@ void fill_struct(ButtonManager &buttonManager, joyData &joystickEsquerdoData)
     data2send.joy_data.x = joystickEsquerdoData.x;
     data2send.joy_data.y = joystickEsquerdoData.y;
     data2send.joy_data.sw = 0;
-    data2send.arrow_data.up = buttonManager.isPressed(0);
-    data2send.arrow_data.down = buttonManager.isPressed(1);
-    data2send.arrow_data.left = buttonManager.isPressed(2);
-    data2send.arrow_data.right = buttonManager.isPressed(3);
+    data2send.arrow_data.up = buttonManager.isReleased(0);
+    data2send.arrow_data.down = buttonManager.isReleased(1);
+    data2send.arrow_data.left = buttonManager.isReleased(2);
+    data2send.arrow_data.right = buttonManager.isReleased(3);
 }
 
 void ControlerBegin()
