@@ -30,6 +30,7 @@ int right_vel = 0;
 
 void setup()
 {
+
     // Inicializa o monitor serial
     Serial.begin(115200);
 
@@ -43,6 +44,8 @@ void setup()
         while (true)
             ;
     }
+    linear = 0;
+    angular = 0;
 }
 
 void loop()

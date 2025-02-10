@@ -13,7 +13,7 @@
 #include <esp_wifi.h>
 
 // REPLACE WITH YOUR RECEIVER MAC Address
-uint8_t broadcastAddress[] = {0xa4, 0xcf, 0x12, 0x99, 0xf0, 0x58};
+uint8_t broadcastAddress[] = {0xe0, 0x5a, 0x1b, 0xd2, 0x41, 0x84};
 
 // Structure example to send data
 // Must match the receiver structure
@@ -40,6 +40,7 @@ void setup()
     // Init Serial Monitor
     Serial.begin(115200);
     tela.begin();
+    pinMode(2, OUTPUT);
 
     // Set device as a Wi-Fi Station
     WiFi.mode(WIFI_STA);
@@ -131,6 +132,15 @@ void loop()
     if (index_vert < 0)
     {
         index_vert = 2;
+    }
+
+    if (result == ESP_OK)
+    {
+        digitalWrite(2, HIGH);
+    }
+    else
+    {
+        digitalWrite(2, LOW);
     }
 
     delay(60);

@@ -38,6 +38,7 @@ void screen::begin()
         Serial.println(F("Falha ao iniciar o display OLED!"));
         return;
     }
+    display.setRotation(2);
     display.clearDisplay();
     display.display(); // Garante que o display está limpo antes de iniciar
 }
